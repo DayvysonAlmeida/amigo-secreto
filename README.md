@@ -1,79 +1,84 @@
-# Amigo Secreto
+# 🎁 Amigo Secreto (Secret Santa App)
 
-Aplicação full-stack para organizar sorteios de amigo secreto.
+Um aplicativo web moderno e completo para organização de sorteios de Amigo Secreto. Construído com foco em usabilidade e com uma interface minimalista (inspirada em designs SaaS de alto padrão como Linear e Stripe).
 
-- **Backend:** Django + Django REST Framework
-- **Frontend:** React + Vite
+## ✨ Funcionalidades
 
-## Funcionalidades
+- **🔐 Autenticação Segura:** Login e Cadastro protegidos por JWT (JSON Web Tokens).
+- **👥 Gestão de Grupos:** Crie múltiplos grupos de amigo secreto, defina orçamento e adicione descrições.
+- **🧑‍🤝‍🧑 Participantes & Lista de Desejos:** Adicione participantes e permita que eles declarem o que gostariam de ganhar.
+- **🎲 Sorteio Inteligente:** O algoritmo garante que o sorteio ocorra sem erros (ninguém tira a si mesmo).
+- **🔗 Compartilhamento Fácil:** O link de revelação pode ser enviado com 1 clique diretamente pelo WhatsApp ou copiado para a área de transferência. O resultado é privado e o participante acessa sem precisar criar conta.
+- **🖼️ Perfil do Usuário:** Personalização de foto de perfil (Avatar), telefone e gerenciamento de segurança (alteração de senhas).
+- **🌓 Dark Mode:** Suporte nativo e fluido para Tema Escuro.
 
-- Criar grupos com nome, descrição e valor sugerido do presente
-- Adicionar participantes com lista de desejos opcional
-- Sortear automaticamente (ninguém tira a si mesmo)
-- Link individual e secreto para cada participante descobrir seu amigo
-- Painel do organizador para gerenciar o grupo
+## 💻 Tecnologias Utilizadas
 
-## Estrutura
+### Frontend
+- **React (Vite):** Framework principal e empacotador super rápido.
+- **CSS Modules:** Estilização componentizada (Vanilla CSS com tokens).
+- **Axios:** Cliente HTTP para comunicação com a API.
+- **Lucide React:** Biblioteca de ícones modernos e leves.
+- **React Router Dom:** Gerenciamento das rotas e rotas privadas.
 
-```
-secreto/
-├── backend/     # API Django
-└── frontend/    # App React
-```
+### Backend
+- **Python & Django:** Framework base do servidor.
+- **Django REST Framework (DRF):** Construção da API RESTful.
+- **SimpleJWT:** Gestão dos tokens de acesso e refresh.
+- **Pillow:** Processamento e armazenamento de imagens de Perfil.
+- **SQLite:** Banco de dados relacional padrão (fácil de migrar para PostgreSQL).
 
-## Como rodar
+## 🚀 Como Executar o Projeto Localmente
 
-### 1. Backend
+Siga as instruções abaixo para rodar o projeto na sua máquina.
+
+### Pré-requisitos
+- Python 3.10+
+- Node.js 18+
+
+### 1. Configurando o Backend (Django)
 
 ```bash
+# Entre na pasta do backend
 cd backend
+
+# Crie e ative o ambiente virtual (Windows)
 python -m venv venv
+.\venv\Scripts\activate
 
-# Windows
-venv\Scripts\activate
-
-# Linux/macOS
-source venv/bin/activate
-
+# Instale as dependências
 pip install -r requirements.txt
+
+# Execute as migrações do banco de dados
 python manage.py migrate
+
+# Inicie o servidor
 python manage.py runserver
 ```
+O backend estará rodando em `http://127.0.0.1:8000`.
 
-A API ficará em `http://127.0.0.1:8000/api/`.
+### 2. Configurando o Frontend (React)
 
-### 2. Frontend
-
-Em outro terminal:
+Em um terminal separado:
 
 ```bash
+# Entre na pasta do frontend
 cd frontend
+
+# Instale as dependências
 npm install
+
+# Inicie o servidor de desenvolvimento
 npm run dev
 ```
+O frontend estará acessível em `http://localhost:5173`.
 
-Acesse `http://localhost:5173`.
+## 📸 Telas do Sistema
 
-## Fluxo de uso
+> *(Você pode adicionar imagens das telas aqui posteriormente)*
+- **Dashboard:** Visão geral com estatísticas.
+- **Sorteio:** Animação minimalista na geração do amigo secreto.
+- **Revelação:** Página pública elegante para o participante ver quem tirou.
 
-1. Crie um grupo na página inicial
-2. Guarde o **link do organizador**
-3. Adicione todos os participantes
-4. Clique em **Realizar sorteio**
-5. Copie e envie o link individual de cada participante (WhatsApp, e-mail, etc.)
-6. Cada pessoa abre seu link e descobre quem sorteou — sem ver os demais
-
-## Endpoints da API
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/api/groups/` | Criar grupo |
-| GET | `/api/groups/{admin_token}/` | Detalhes do grupo |
-| POST | `/api/groups/{admin_token}/participants/` | Adicionar participante |
-| DELETE | `/api/groups/{admin_token}/participants/{id}/` | Remover participante |
-| POST | `/api/groups/{admin_token}/draw/` | Realizar sorteio |
-| GET | `/api/reveal/{participant_token}/` | Revelar amigo secreto |
-
-## Produção
-
-Para deploy, configure `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS` e uma `SECRET_KEY` segura no Django. Faça o build do frontend com `npm run build` e sirva os arquivos estáticos ou use um reverse proxy apontando `/api` para o Django.
+---
+Feito com 💡 e ☕ para simplificar as festas de fim de ano!
