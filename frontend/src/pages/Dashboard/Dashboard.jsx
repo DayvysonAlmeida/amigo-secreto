@@ -1,58 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Gift, Calendar, Plus } from 'lucide-react';
 import { Card, CardContent } from '../../components/Card/Card';
 import { Button } from '../../components/Button/Button';
 import { Badge } from '../../components/Badge/Badge';
+import { getGroups } from '../../api';
 import styles from './Dashboard.module.css';
 
 export const Dashboard = () => {
-  // Mock data based on the reference image
+  const navigate = useNavigate();
+  const [grupos, setGrupos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getGroups().then(data => {
+      setGrupos(data);
+      setIsLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setIsLoading(false);
+    });
+  }, []);
+
+  const totalParticipantes = grupos.reduce((acc, g) => acc + g.participants.length, 0);
+  const sorteiosRealizados = grupos.filter(g => g.is_drawn).length;
+
   const stats = [
-    { label: 'Grupos Criados', value: '3', icon: Users, color: '#3b82f6', bgColor: '#dbeafe' },
-    { label: 'Sorteios Realizados', value: '5', icon: Gift, color: '#ec4899', bgColor: '#fce7f3' },
-    { label: 'Próximo Sorteio', value: '24/12/2024', icon: Calendar, color: '#10b981', bgColor: '#d1fae5' },
-    { label: 'Participantes', value: '28', icon: Users, color: '#8b5cf6', bgColor: '#ede9fe' },
+    { label: 'Grupos Criados', value: grupos.length.toString(), icon: Users, color: '#3b82f6', bgColor: '#dbeafe' },
+    { label: 'Sorteios Realizados', value: sorteiosRealizados.toString(), icon: Gift, color: '#ec4899', bgColor: '#fce7f3' },
+    { label: 'Participantes', value: totalParticipantes.toString(), icon: Users, color: '#8b5cf6', bgColor: '#ede9fe' },
   ];
 
-  const grupos = [
-    {
-      id: 1,
-      name: 'Família',
-      participants: 12,
-      confirmed: 10,
-      date: '24/12/2024',
-      status: 'Ativo',
-      statusVariant: 'success',
-      icon: Users,
-      iconColor: '#10b981'
-    },
-    {
-      id: 2,
-      name: 'Amigos da Faculdade',
-      participants: 8,
-      confirmed: 6,
-      date: '15/12/2024',
-      status: 'Em andamento',
-      statusVariant: 'warning',
-      icon: Gift,
-      iconColor: '#f59e0b'
-    },
-    {
-      id: 3,
-      name: 'Trabalho',
-      participants: 8,
-      confirmed: 8,
-      date: '01/12/2024',
-      status: 'Concluído',
-      statusVariant: 'neutral',
-      icon: Users,
-      iconColor: '#8b5cf6'
-    }
-  ];
+  if (isLoading) {
+    return <div style={{ padding: '2rem' }}>Carregando seus grupos...</div>;
+  }
 
   return (
     <div className={styles.dashboard}>
-      {/* Stats Section */}
       <div className={styles.statsGrid}>
         {stats.map((stat, index) => {
           const Icon = stat.icon;
@@ -75,10 +59,9 @@ export const Dashboard = () => {
         })}
       </div>
 
-      {/* Meus Grupos Section */}
       <div className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>Meus Grupos</h2>
-        <Button>
+        <Button onClick={() => navigate('/grupos/novo')}>
           <Plus size={18} style={{ marginRight: '8px' }} />
           Criar grupo
         </Button>
@@ -86,44 +69,31 @@ export const Dashboard = () => {
 
       <div className={styles.groupsGrid}>
         {grupos.map((grupo) => {
-          const Icon = grupo.icon;
+          const Icon = Users;
+          const iconColor = grupo.is_drawn ? '#8b5cf6' : '#10b981';
+          const status = grupo.is_drawn ? 'Concluído' : 'Ativo';
+          const statusVariant = grupo.is_drawn ? 'neutral' : 'success';
+          const dateStr = new Date(grupo.created_at).toLocaleDateString('pt-BR');
+
           return (
             <Card key={grupo.id} className={styles.groupCard}>
               <CardContent className={styles.groupContent}>
                 <div className={styles.groupHeader}>
-                  <Badge variant={grupo.statusVariant}>{grupo.status}</Badge>
+                  <Badge variant={statusVariant}>{status}</Badge>
                 </div>
                 
                 <div className={styles.groupMainInfo}>
-                  <div className={styles.groupIconWrapper} style={{ color: grupo.iconColor }}>
+                  <div className={styles.groupIconWrapper} style={{ color: iconColor }}>
                     <Icon size={48} strokeWidth={1.5} />
                   </div>
                   <h3 className={styles.groupName}>{grupo.name}</h3>
-                  <p className={styles.groupParticipants}>{grupo.participants} participantes</p>
-                  {grupo.status === 'Concluído' ? (
-                    <p className={styles.groupDate}>Sorteio realizado em {grupo.date}</p>
-                  ) : (
-                    <p className={styles.groupDate}>Sorteio em {grupo.date}</p>
-                  )}
+                  <p className={styles.groupParticipants}>{grupo.participants.length} participantes</p>
+                  <p className={styles.groupDate}>Criado em {dateStr}</p>
                 </div>
 
                 <div className={styles.groupFooter}>
-                  <div className={styles.progressWrapper}>
-                    <div className={styles.progressHeader}>
-                      <span className={styles.progressText}>
-                        <strong>{grupo.confirmed}/{grupo.participants}</strong> confirmados
-                      </span>
-                    </div>
-                    <div className={styles.progressBar}>
-                      <div 
-                        className={styles.progressFill} 
-                        style={{ width: `${(grupo.confirmed / grupo.participants) * 100}%`, backgroundColor: grupo.iconColor }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  <Button variant="outline" fullWidth>
-                    {grupo.status === 'Concluído' ? 'Ver resultados' : 'Ver grupo'}
+                  <Button variant="outline" fullWidth onClick={() => navigate('/participantes', { state: { adminToken: grupo.admin_token } })}>
+                    Gerenciar grupo
                   </Button>
                 </div>
               </CardContent>
@@ -131,8 +101,7 @@ export const Dashboard = () => {
           );
         })}
 
-        {/* Create New Group Card */}
-        <button className={styles.createGroupCard}>
+        <button className={styles.createGroupCard} onClick={() => navigate('/grupos/novo')}>
           <div className={styles.createGroupContent}>
             <Plus size={32} className={styles.createGroupIcon} />
             <span>Criar novo grupo</span>

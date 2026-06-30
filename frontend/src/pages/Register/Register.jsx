@@ -4,20 +4,33 @@ import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '../../components/Card/Card';
 import { Input } from '../../components/Input/Input';
 import { Button } from '../../components/Button/Button';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import styles from './Register.module.css';
 
 export const Register = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
+  const { addToast } = useToast();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await register(name, email, password);
+      addToast('Conta criada com sucesso!', 'success');
       navigate('/dashboard');
-    }, 1500);
+    } catch (err) {
+      const errorMsg = err.response?.data?.username?.[0] || 'Erro ao criar conta. Verifique os dados.';
+      addToast(errorMsg, 'error');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -35,6 +48,8 @@ export const Register = () => {
               type="text"
               placeholder="Seu nome"
               icon={User}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
 
@@ -43,6 +58,8 @@ export const Register = () => {
               type="email"
               placeholder="seu@email.com"
               icon={Mail}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
             
@@ -52,6 +69,8 @@ export const Register = () => {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 icon={Lock}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <button

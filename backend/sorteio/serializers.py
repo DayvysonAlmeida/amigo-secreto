@@ -1,7 +1,23 @@
 from rest_framework import serializers
-
+from django.contrib.auth.models import User
 from .models import Group, Participant
 
+class RegisterSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="first_name")
+    
+    class Meta:
+        model = User
+        fields = ["name", "email", "password"]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data.get("email"), 
+            email=validated_data.get("email"),
+            password=validated_data["password"],
+            first_name=validated_data.get("first_name", "")
+        )
+        return user
 
 class ParticipantSerializer(serializers.ModelSerializer):
     reveal_url = serializers.SerializerMethodField()

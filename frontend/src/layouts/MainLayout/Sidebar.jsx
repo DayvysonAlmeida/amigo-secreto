@@ -1,9 +1,13 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, UserPlus, Gift, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import styles from './Sidebar.module.css';
 
 export const Sidebar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/grupos/novo', label: 'Criar Grupo', icon: Users },
@@ -11,6 +15,11 @@ export const Sidebar = () => {
     { path: '/sorteios', label: 'Sorteios', icon: Gift },
     { path: '/configuracoes', label: 'Configurações', icon: Settings },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <aside className={styles.sidebar}>
@@ -43,7 +52,7 @@ export const Sidebar = () => {
       </nav>
 
       <div className={styles.footer}>
-        <button className={styles.logoutButton}>
+        <button className={styles.logoutButton} onClick={handleLogout}>
           <LogOut size={20} />
           <span>Sair</span>
         </button>

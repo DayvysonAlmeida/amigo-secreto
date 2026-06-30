@@ -3,7 +3,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("groups/", views.GroupCreateView.as_view(), name="group-create"),
+    path("auth/register/", views.RegisterView.as_view(), name="register"),
+    path("auth/me/", views.UserDetailView.as_view(), name="me"),
+    path("groups/", views.GroupListView.as_view(), name="group-list"),
+    path("groups/new/", views.GroupCreateView.as_view(), name="group-create"),
     path(
         "groups/<uuid:admin_token>/",
         views.GroupDetailView.as_view(),

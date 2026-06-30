@@ -4,28 +4,39 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent } from '../../components/Card/Card';
 import { Input } from '../../components/Input/Input';
 import { Button } from '../../components/Button/Button';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import styles from './Login.module.css';
 
 export const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { addToast } = useToast();
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await login(email, password);
+      addToast('Bem-vindo de volta!', 'success');
       navigate('/dashboard');
-    }, 1500);
+    } catch (err) {
+      addToast('E-mail ou senha incorretos. Tente novamente.', 'error');
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className={styles.loginWrapper}>
-      <Card className={styles.loginCard}>
+    <div className={styles.wrapper}>
+      <Card className={styles.card}>
         <div className={styles.header}>
-          <h2>Entrar na sua conta</h2>
+          <h2>Acesse sua conta</h2>
+          <p>Organize seus sorteios de Amigo Secreto de forma simples</p>
         </div>
         
         <CardContent>
@@ -35,6 +46,8 @@ export const Login = () => {
               type="email"
               placeholder="seu@email.com"
               icon={Mail}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
             
@@ -44,6 +57,8 @@ export const Login = () => {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 icon={Lock}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <button
@@ -55,30 +70,20 @@ export const Login = () => {
               </button>
             </div>
 
-            <div className={styles.formOptions}>
-              <label className={styles.remember}>
-                <input type="checkbox" />
-                <span>Lembrar de mim</span>
-              </label>
-              <Link to="/forgot-password" className={styles.forgotPassword}>
-                Esqueci minha senha
-              </Link>
+            <div className={styles.forgotPassword}>
+              <Link to="/forgot-password">Esqueceu a senha?</Link>
             </div>
 
-            <Button type="submit" fullWidth isLoading={isLoading} size="lg">
+            <Button type="submit" fullWidth isLoading={isLoading} size="lg" className={styles.submitBtn}>
               Entrar
             </Button>
             
-            <p className={styles.register}>
+            <p className={styles.footerLink}>
               Não tem uma conta? <Link to="/register">Cadastre-se</Link>
             </p>
           </form>
         </CardContent>
       </Card>
-      
-      <p className={styles.footerText}>
-        &copy; 2024 Amigo Secreto. Todos os direitos reservados.
-      </p>
     </div>
   );
 };

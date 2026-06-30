@@ -1,53 +1,48 @@
-const API_BASE = '/api'
+import axios from 'axios';
 
-async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  })
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api', // adjust backend url if different
+});
 
-  const data = await response.json().catch(() => ({}))
+// Request interceptor to add token if exists
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-  if (!response.ok) {
-    throw new Error(data.detail || 'Algo deu errado. Tente novamente.')
+// Response interceptor to handle token expiry
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('token');
+      window.dispatchEvent(new Event('auth:unauthorized'));
+    }
+    return Promise.reject(error);
   }
+);
 
-  return data
-}
+export default api;
 
-export function createGroup(payload) {
-  return request('/groups/', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-}
+export const createGroup = (payload) => api.post('/groups/new/', payload).then(res => res.data);
+export const getGroups = () => api.get('/groups/').then(res => res.data);
+export const getGroup = (adminToken) => api.get(`/groups/${adminToken}/`).then(res => res.data);
+export const addParticipant = (adminToken, payload) => api.post(`/groups/${adminToken}/participants/`, payload).then(res => res.data);
+export const removeParticipant = (adminToken, participantId) => api.delete(`/groups/${adminToken}/participants/${participantId}/`).then(res => res.data);
+export const drawGroup = (adminToken) => api.post(`/groups/${adminToken}/draw/`).then(res => res.data);
+export const revealParticipant = async (token) => {
+  const response = await api.get(`/revelar/${token}/`);
+  return response.data;
+};
 
-export function getGroup(adminToken) {
-  return request(`/groups/${adminToken}/`)
-}
-
-export function addParticipant(adminToken, payload) {
-  return request(`/groups/${adminToken}/participants/`, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-}
-
-export function removeParticipant(adminToken, participantId) {
-  return request(`/groups/${adminToken}/participants/${participantId}/`, {
-    method: 'DELETE',
-  })
-}
-
-export function drawGroup(adminToken) {
-  return request(`/groups/${adminToken}/draw/`, {
-    method: 'POST',
-  })
-}
-
-export function revealParticipant(participantToken) {
-  return request(`/reveal/${participantToken}/`)
-}
+export const updateProfile = async (formData) => {
+  const response = await api.put('/auth/me/', formData);
+  return response.data;
+};

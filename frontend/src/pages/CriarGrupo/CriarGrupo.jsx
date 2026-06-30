@@ -1,18 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Gift, Calendar, DollarSign, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '../../components/Card/Card';
 import { Input } from '../../components/Input/Input';
 import { Button } from '../../components/Button/Button';
+import { createGroup } from '../../api';
+import { useToast } from '../../context/ToastContext';
 import styles from './CriarGrupo.module.css';
 
 export const CriarGrupo = () => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [budget, setBudget] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
-    // Simulate creation
-    navigate('/participantes');
+    setIsLoading(true);
+    try {
+      const group = await createGroup({ name, description, budget });
+      addToast('Grupo criado com sucesso!', 'success');
+      navigate('/participantes', { state: { adminToken: group.admin_token } });
+    } catch (err) {
+      addToast(err.message || 'Erro ao criar grupo', 'error');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -24,6 +38,8 @@ export const CriarGrupo = () => {
               <h2 className={styles.formTitle}>Nome do grupo</h2>
               <Input 
                 placeholder="Ex: Amigos de infância" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required 
               />
 
@@ -31,6 +47,8 @@ export const CriarGrupo = () => {
               <textarea 
                 className={styles.textarea} 
                 placeholder="Ex: Nosso amigo secreto de final de ano"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 rows={3}
               ></textarea>
 
@@ -38,42 +56,20 @@ export const CriarGrupo = () => {
               
               <div className={styles.formRow}>
                 <Input 
-                  label="Data do sorteio" 
-                  type="date" 
-                  icon={Calendar} 
-                  required 
+                  label="Valor sugerido (R$)" 
+                  type="text" 
+                  placeholder="Ex: 50,00 a 100,00" 
+                  icon={DollarSign}
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
                 />
-                <Input 
-                  label="Valor mínimo (R$)" 
-                  type="number" 
-                  placeholder="Ex: 50,00" 
-                  icon={DollarSign} 
-                />
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.selectWrapper}>
-                  <label className={styles.label}>Tipo de sorteio</label>
-                  <select className={styles.select}>
-                    <option value="automatico">Automático</option>
-                    <option value="manual">Manual</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.toggleRow}>
-                <label className={styles.label}>Permitir exclusões</label>
-                <label className={styles.switch}>
-                  <input type="checkbox" defaultChecked />
-                  <span className={styles.slider}></span>
-                </label>
               </div>
 
               <div className={styles.formActions}>
                 <Button variant="outline" type="button" onClick={() => navigate('/dashboard')}>
                   Cancelar
                 </Button>
-                <Button type="submit">
+                <Button type="submit" isLoading={isLoading}>
                   Criar grupo
                 </Button>
               </div>
@@ -93,7 +89,7 @@ export const CriarGrupo = () => {
               <Sparkles size={20} className={styles.tipIcon} />
               <h4>Dica</h4>
             </div>
-            <p>Você poderá adicionar os participantes e personalizar as regras do sorteio depois de criar o grupo.</p>
+            <p>Você poderá adicionar os participantes e realizar o sorteio na próxima tela, logo após criar o grupo.</p>
           </div>
         </div>
       </div>

@@ -1,9 +1,12 @@
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth.models import User
 
 from .models import Group, Participant
 from .serializers import (
+    RegisterSerializer,
     GroupCreateSerializer,
     GroupSerializer,
     ParticipantCreateSerializer,
@@ -13,11 +16,86 @@ from .serializers import (
 from .services import DrawError, perform_draw
 
 
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
+
+
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from .models import Group, Participant, UserProfile
+
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get(self, request):
+        user = request.user
+        profile = getattr(user, 'profile', None)
+        
+        avatar_url = None
+        if profile and profile.avatar:
+            avatar_url = request.build_absolute_uri(profile.avatar.url)
+            
+        return Response({
+            "id": user.id,
+            "name": user.first_name,
+            "email": user.email,
+            "phone": profile.phone if profile else None,
+            "avatar": avatar_url
+        })
+
+    def put(self, request):
+        user = request.user
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+
+        name = request.data.get('name')
+        if name is not None:
+            user.first_name = name
+
+        email = request.data.get('email')
+        if email is not None:
+            user.email = email
+            user.username = email
+
+        new_password = request.data.get('new_password')
+        current_password = request.data.get('current_password')
+        if new_password:
+            if not current_password or not user.check_password(current_password):
+                return Response({"detail": "Senha atual incorreta."}, status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(new_password)
+
+        user.save()
+
+        phone = request.data.get('phone')
+        if phone is not None:
+            profile.phone = phone
+
+        if 'avatar' in request.FILES:
+            profile.avatar = request.FILES['avatar']
+
+        profile.save()
+
+        return self.get(request)
+
+
+class GroupListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        groups = Group.objects.filter(owner=request.user)
+        return Response(
+            GroupSerializer(groups, many=True, context={"request": request}).data
+        )
+
+
 class GroupCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         serializer = GroupCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        group = serializer.save()
+        group = serializer.save(owner=request.user)
         return Response(
             GroupSerializer(group, context={"request": request}).data,
             status=status.HTTP_201_CREATED,
@@ -25,10 +103,12 @@ class GroupCreateView(APIView):
 
 
 class GroupDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, admin_token):
         try:
             group = Group.objects.prefetch_related("participants").get(
-                admin_token=admin_token
+                admin_token=admin_token, owner=request.user
             )
         except Group.DoesNotExist:
             return Response({"detail": "Grupo não encontrado."}, status=404)
@@ -39,12 +119,14 @@ class GroupDetailView(APIView):
 
 
 class ParticipantListCreateView(APIView):
-    def _get_group(self, admin_token):
-        return Group.objects.get(admin_token=admin_token)
+    permission_classes = [IsAuthenticated]
+
+    def _get_group(self, admin_token, user):
+        return Group.objects.get(admin_token=admin_token, owner=user)
 
     def post(self, request, admin_token):
         try:
-            group = self._get_group(admin_token)
+            group = self._get_group(admin_token, request.user)
         except Group.DoesNotExist:
             return Response({"detail": "Grupo não encontrado."}, status=404)
 
@@ -72,9 +154,11 @@ class ParticipantListCreateView(APIView):
 
 
 class ParticipantDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request, admin_token, participant_id):
         try:
-            group = Group.objects.get(admin_token=admin_token)
+            group = Group.objects.get(admin_token=admin_token, owner=request.user)
         except Group.DoesNotExist:
             return Response({"detail": "Grupo não encontrado."}, status=404)
 
@@ -94,10 +178,12 @@ class ParticipantDeleteView(APIView):
 
 
 class DrawView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, admin_token):
         try:
             group = Group.objects.prefetch_related("participants").get(
-                admin_token=admin_token
+                admin_token=admin_token, owner=request.user
             )
         except Group.DoesNotExist:
             return Response({"detail": "Grupo não encontrado."}, status=404)
@@ -114,6 +200,8 @@ class DrawView(APIView):
 
 
 class RevealView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, participant_token):
         try:
             participant = Participant.objects.select_related(

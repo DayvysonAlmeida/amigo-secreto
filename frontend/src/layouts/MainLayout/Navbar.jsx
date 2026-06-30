@@ -1,10 +1,36 @@
-import React from 'react';
-import { Bell, ChevronDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Bell, ChevronDown, Settings, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../../components/Avatar/Avatar';
 import { Badge } from '../../components/Badge/Badge';
+import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
 
 export const Navbar = ({ title, subtitle }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const userName = user?.name || 'Usuário';
+  const firstName = userName.split(' ')[0];
+  const initials = userName.substring(0, 2).toUpperCase();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <header className={styles.navbar}>
       <div className={styles.pageInfo}>
@@ -20,12 +46,39 @@ export const Navbar = ({ title, subtitle }) => {
           </div>
         </button>
 
-        <div className={styles.userMenu}>
-          <Avatar fallback="GS" size="md" />
-          <div className={styles.userInfo}>
-            <span className={styles.userName}>Olá, Gabriel!</span>
+        <div className={styles.userMenuWrapper} ref={dropdownRef}>
+          <div 
+            className={styles.userMenu} 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <Avatar src={user?.avatar} fallback={initials} size="md" />
+            <div className={styles.userInfo}>
+              <span className={styles.userName}>Olá, {firstName}!</span>
+            </div>
+            <ChevronDown size={16} className={styles.chevron} />
           </div>
-          <ChevronDown size={16} className={styles.chevron} />
+
+          {isDropdownOpen && (
+            <div className={styles.dropdown}>
+              <button 
+                className={styles.dropdownItem}
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  navigate('/configuracoes');
+                }}
+              >
+                <Settings size={16} />
+                Configurações
+              </button>
+              <button 
+                className={`${styles.dropdownItem} ${styles.logout}`}
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                Sair
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>
