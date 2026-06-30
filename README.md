@@ -75,7 +75,12 @@ O frontend estará acessível em `http://localhost:5173`.
 
 ## 📸 Telas do Sistema
 
-> *(Você pode adicionar imagens das telas aqui posteriormente)*
+> <img width="1917" height="943" alt="Captura de tela 2026-06-30 181418" src="https://github.com/user-attachments/assets/07a39c4b-c53c-449b-8c23-5d903240b3b1" />
+
+<img width="1907" height="944" alt="Captura de tela 2026-06-30 181504" src="https://github.com/user-attachments/assets/17b99336-9df9-41f9-a467-df25102f5d82" />
+<img width="1909" height="947" alt="Captura de tela 2026-06-30 181451" src="https://github.com/user-attachments/assets/85b14aa2-fcad-49c3-8b43-36a9c9e84d8a" />
+
+
 - **Dashboard:** Visão geral com estatísticas.
 - **Sorteio:** Animação minimalista na geração do amigo secreto.
 - **Revelação:** Página pública elegante para o participante ver quem tirou.
