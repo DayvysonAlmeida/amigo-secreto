@@ -38,7 +38,7 @@ export const addParticipant = (adminToken, payload) => api.post(`/groups/${admin
 export const removeParticipant = (adminToken, participantId) => api.delete(`/groups/${adminToken}/participants/${participantId}/`).then(res => res.data);
 export const drawGroup = (adminToken) => api.post(`/groups/${adminToken}/draw/`).then(res => res.data);
 export const revealParticipant = async (token) => {
-  const response = await api.get(`/revelar/${token}/`);
+  const response = await api.get(`/reveal/${token}/`);
   return response.data;
 };
 

@@ -16,6 +16,10 @@ export const Perfil = () => {
   const { addToast } = useToast();
   const fileInputRef = useRef(null);
 
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    localStorage.getItem('notifications') !== 'false'
+  );
+
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -32,6 +36,13 @@ export const Perfil = () => {
       setAvatarFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+
+  const toggleNotifications = () => {
+    const newState = !notificationsEnabled;
+    setNotificationsEnabled(newState);
+    localStorage.setItem('notifications', newState);
+    addToast(`Notificações ${newState ? 'ativadas' : 'desativadas'}.`, 'info');
   };
 
   const handleSave = async (e) => {
@@ -120,7 +131,11 @@ export const Perfil = () => {
                 <span>Notificações</span>
               </div>
               <label className={styles.switch}>
-                <input type="checkbox" defaultChecked />
+                <input 
+                  type="checkbox" 
+                  checked={notificationsEnabled} 
+                  onChange={toggleNotifications}
+                />
                 <span className={styles.slider}></span>
               </label>
             </div>
