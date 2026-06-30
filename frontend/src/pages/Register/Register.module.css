@@ -1,0 +1,76 @@
+.wrapper {
+  width: 100%;
+  max-width: 440px;
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.card {
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  border-radius: var(--radius-lg);
+}
+
+.header {
+  padding: var(--spacing-8) var(--spacing-6) var(--spacing-4);
+  text-align: center;
+}
+
+.header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.header p {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-2);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.passwordField {
+  position: relative;
+}
+
+.togglePassword {
+  position: absolute;
+  right: var(--spacing-3);
+  top: 36px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.togglePassword:hover {
+  color: var(--color-text-main);
+}
+
+.submitBtn {
+  margin-top: var(--spacing-2);
+}
+
+.footerLink {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-4);
+}
+
+.footerLink a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.footerLink a:hover {
+  text-decoration: underline;
+}

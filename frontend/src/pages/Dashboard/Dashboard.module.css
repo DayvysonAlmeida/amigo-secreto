@@ -1,0 +1,203 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+/* Stats */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-6);
+}
+
+.statCard {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.statContent {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-5) !important;
+}
+
+.statIconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  line-height: 1.2;
+}
+
+/* Section Header */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+/* Groups Grid */
+.groupsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-6);
+}
+
+.groupCard {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.groupCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.groupContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.groupHeader {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: var(--spacing-4);
+}
+
+.groupMainInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-6);
+}
+
+.groupIconWrapper {
+  margin-bottom: var(--spacing-2);
+  background-color: var(--color-background);
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.groupName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.groupParticipants {
+  font-size: 0.875rem;
+  color: var(--color-text-main);
+}
+
+.groupDate {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.groupFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.progressWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 0.875rem;
+}
+
+.progressText {
+  color: var(--color-text-muted);
+}
+
+.progressText strong {
+  color: var(--color-text-main);
+}
+
+.progressBar {
+  height: 6px;
+  background-color: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease-out;
+}
+
+/* Create New Group Card */
+.createGroupCard {
+  background-color: transparent;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 340px;
+  transition: all 0.2s;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.createGroupCard:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: rgba(21, 128, 61, 0.02);
+}
+
+.createGroupContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.createGroupIcon {
+  color: currentColor;
+}

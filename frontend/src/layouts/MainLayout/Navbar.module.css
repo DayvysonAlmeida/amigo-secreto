@@ -1,0 +1,91 @@
+.navbar {
+  height: var(--navbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-8);
+  background-color: var(--color-background);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.pageInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+}
+
+.notificationButton {
+  position: relative;
+  color: var(--color-text-muted);
+  padding: var(--spacing-2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+
+.notificationButton:hover {
+  color: var(--color-text-main);
+  box-shadow: var(--shadow-md);
+}
+
+.badgeWrapper {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+}
+
+.notificationBadge {
+  padding: 2px 4px;
+  font-size: 0.65rem;
+  min-width: 18px;
+  justify-content: center;
+}
+
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  cursor: pointer;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-full);
+  transition: background-color 0.2s;
+}
+
+.userMenu:hover {
+  background-color: var(--color-border);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.chevron {
+  color: var(--color-text-muted);
+}
