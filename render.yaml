@@ -1,0 +1,14 @@
+# Render Blueprint: no painel do Render, New > Blueprint e escolha este repositório.
+# Passo a passo no README (seção "Hospedagem").
+services:
+  - type: web
+    name: amigo-secreto
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health/
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      # Endereço do Postgres (Neon, Supabase ou Render Postgres). O Render pede o valor na criação.
+      - key: DATABASE_URL
+        sync: false

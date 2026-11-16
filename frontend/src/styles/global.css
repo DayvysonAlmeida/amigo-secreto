@@ -5,7 +5,9 @@
   --color-primary: #15803d;
   --color-primary-hover: #166534;
   --color-primary-light: #dcfce7;
-  
+  --color-primary-text: #166534; /* texto sobre fundos primary-light */
+  --color-on-primary: #FFFFFF;   /* texto sobre fundos primary / verde escuro */
+
   --color-background: #F8FAFC;
   --color-surface: #FFFFFF;
   
@@ -47,6 +49,7 @@
   /* Layout */
   --sidebar-width: 260px;
   --navbar-height: 70px;
+  --bottom-nav-height: 64px;
 }
 
 * {
@@ -119,6 +122,7 @@ input, textarea, select {
 }
 
 [data-theme='dark'] {
+  color-scheme: dark; /* calendário, relógio e barras de rolagem nativos no tema escuro */
   --color-background: #0f172a;
   --color-surface: #1e293b;
   
@@ -130,4 +134,11 @@ input, textarea, select {
   --color-border-hover: #475569;
   
   --color-primary-light: #064e3b; /* Darker green background for light primary elements */
+  --color-primary-text: #86efac;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --navbar-height: 60px;
+  }
 }

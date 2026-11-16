@@ -29,6 +29,11 @@ class Group(models.Model):
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True)
     budget = models.CharField(max_length=80, blank=True)
+    # Dados da festa (opcionais). Data e horário separados e sem fuso:
+    # "24/12 às 20h" é a hora local da festa para todo mundo.
+    event_date = models.DateField(null=True, blank=True)
+    event_time = models.TimeField(null=True, blank=True)
+    location = models.CharField(max_length=200, blank=True)
     admin_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     is_drawn = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -55,6 +60,10 @@ class Participant(models.Model):
         on_delete=models.SET_NULL,
         related_name="assigned_by",
     )
+    # Acompanhamento do envio: quando o organizador enviou/copiou o link
+    # e quando o participante abriu o resultado pela primeira vez.
+    link_sent_at = models.DateTimeField(null=True, blank=True)
+    viewed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["name"]

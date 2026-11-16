@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { X, CheckCircle, AlertCircle, Info, XCircle } from 'lucide-react';
 import styles from './Toast.module.css';
 
@@ -8,9 +8,16 @@ export const useToast = () => useContext(ToastContext);
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  // Contador em vez de Date.now(): dois avisos no mesmo milissegundo teriam a mesma key.
+  const nextId = useRef(0);
+
+  const removeToast = useCallback((id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  }, []);
 
   const addToast = useCallback((message, type = 'info', duration = 3000) => {
-    const id = Date.now();
+    nextId.current += 1;
+    const id = nextId.current;
     setToasts(prev => [...prev, { id, message, type }]);
 
     if (duration > 0) {
@@ -18,11 +25,7 @@ export const ToastProvider = ({ children }) => {
         removeToast(id);
       }, duration);
     }
-  }, []);
-
-  const removeToast = useCallback((id) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
+  }, [removeToast]);
 
   return (
     <ToastContext.Provider value={{ addToast, removeToast }}>

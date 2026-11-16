@@ -15,14 +15,29 @@ export const Modal = ({ isOpen, onClose, title, children, footer }) => {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.modal}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
         <div className={styles.header}>
-          <h3 className={styles.title}>{title}</h3>
-          <button className={styles.closeButton} onClick={onClose}>
+          <h3 id="modal-title" className={styles.title}>{title}</h3>
+          <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Fechar">
             <X size={20} />
           </button>
         </div>

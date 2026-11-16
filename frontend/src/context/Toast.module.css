@@ -73,3 +73,15 @@
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
+@media (max-width: 768px) {
+  .toastContainer {
+    left: var(--spacing-4);
+    right: var(--spacing-4);
+    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--spacing-3));
+  }
+
+  .toast {
+    min-width: 0;
+  }
+}

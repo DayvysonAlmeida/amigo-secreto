@@ -6,14 +6,11 @@ import { AuthLayout } from './layouts/AuthLayout/AuthLayout';
 import { MainLayout } from './layouts/MainLayout/MainLayout';
 import { Login } from './pages/Login/Login';
 import { Register } from './pages/Register/Register';
-import { ForgotPassword } from './pages/ForgotPassword/ForgotPassword';
 import { Dashboard } from './pages/Dashboard/Dashboard';
 import { CriarGrupo } from './pages/CriarGrupo/CriarGrupo';
-import { Participantes } from './pages/Participantes/Participantes';
-import { Sorteio } from './pages/Sorteio/Sorteio';
+import { Grupo } from './pages/Grupo/Grupo';
 import { Resultado } from './pages/Resultado/Resultado';
 import { Perfil } from './pages/Perfil/Perfil';
-import { Administracao } from './pages/Administracao/Administracao';
 
 const PrivateRoute = ({ children }) => {
   const { token, loading } = useAuth();
@@ -37,7 +34,6 @@ function App() {
               <Route element={<AuthLayout />}>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
               </Route>
 
               <Route path="/revelar/:token" element={<Resultado />} />
@@ -45,11 +41,11 @@ function App() {
               <Route element={<PrivateRoute><MainLayout /></PrivateRoute>}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/grupos/novo" element={<CriarGrupo />} />
-                <Route path="/participantes" element={<Participantes />} />
-                <Route path="/sorteios" element={<Sorteio />} />
+                <Route path="/grupos/:adminToken" element={<Grupo />} />
                 <Route path="/configuracoes" element={<Perfil />} />
-                <Route path="/admin" element={<Administracao />} />
               </Route>
+
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AuthProvider>
         </BrowserRouter>

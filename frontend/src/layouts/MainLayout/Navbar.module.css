@@ -33,34 +33,6 @@
   gap: var(--spacing-6);
 }
 
-.notificationButton {
-  position: relative;
-  color: var(--color-text-muted);
-  padding: var(--spacing-2);
-  border-radius: var(--radius-full);
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s;
-}
-
-.notificationButton:hover {
-  color: var(--color-text-main);
-  box-shadow: var(--shadow-md);
-}
-
-.badgeWrapper {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-}
-
-.notificationBadge {
-  padding: 2px 4px;
-  font-size: 0.65rem;
-  min-width: 18px;
-  justify-content: center;
-}
-
 .userMenu {
   display: flex;
   align-items: center;
@@ -136,4 +108,29 @@
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 var(--spacing-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .title {
+    font-size: 1.125rem;
+  }
+
+  .subtitle,
+  .userInfo,
+  .chevron {
+    display: none;
+  }
+
+  .actions {
+    gap: var(--spacing-3);
+  }
+
+  .userMenu {
+    padding: 0;
+  }
 }

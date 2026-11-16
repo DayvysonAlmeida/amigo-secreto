@@ -68,3 +68,14 @@
   color: var(--color-danger);
   margin-top: 2px;
 }
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .input {
+    font-size: 1rem; /* 16px: evita o zoom automático do iPhone ao focar */
+  }
+}

@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, ChevronDown, Settings, LogOut } from 'lucide-react';
+import { ChevronDown, Settings, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../../components/Avatar/Avatar';
-import { Badge } from '../../components/Badge/Badge';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
 
@@ -39,24 +38,21 @@ export const Navbar = ({ title, subtitle }) => {
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.notificationButton}>
-          <Bell size={20} />
-          <div className={styles.badgeWrapper}>
-            <Badge variant="danger" className={styles.notificationBadge}>2</Badge>
-          </div>
-        </button>
-
         <div className={styles.userMenuWrapper} ref={dropdownRef}>
-          <div 
-            className={styles.userMenu} 
+          <button
+            type="button"
+            className={styles.userMenu}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            aria-haspopup="menu"
+            aria-expanded={isDropdownOpen}
+            aria-label="Menu da conta"
           >
             <Avatar src={user?.avatar} fallback={initials} size="md" />
             <div className={styles.userInfo}>
               <span className={styles.userName}>Olá, {firstName}!</span>
             </div>
             <ChevronDown size={16} className={styles.chevron} />
-          </div>
+          </button>
 
           {isDropdownOpen && (
             <div className={styles.dropdown}>

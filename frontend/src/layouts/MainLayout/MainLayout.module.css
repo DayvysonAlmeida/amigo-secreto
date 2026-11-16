@@ -16,3 +16,18 @@
   flex: 1;
   animation: fadeIn 0.3s ease-in-out;
 }
+
+.mainWrapper {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .mainWrapper {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: var(--spacing-4);
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--spacing-6));
+  }
+}

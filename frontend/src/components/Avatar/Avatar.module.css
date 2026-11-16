@@ -4,7 +4,7 @@
   justify-content: center;
   border-radius: var(--radius-full);
   background-color: var(--color-primary-light);
-  color: var(--color-primary-hover);
+  color: var(--color-primary-text);
   font-weight: 600;
   overflow: hidden;
   flex-shrink: 0;

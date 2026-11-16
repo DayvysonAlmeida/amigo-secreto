@@ -26,15 +26,16 @@ Um aplicativo web moderno e completo para organização de sorteios de Amigo Sec
 - **Django REST Framework (DRF):** Construção da API RESTful.
 - **SimpleJWT:** Gestão dos tokens de acesso e refresh.
 - **Pillow:** Processamento e armazenamento de imagens de Perfil.
-- **SQLite:** Banco de dados relacional padrão (fácil de migrar para PostgreSQL).
+- **SQLite / PostgreSQL:** SQLite no desenvolvimento e PostgreSQL em produção.
+- **WhiteNoise + Gunicorn:** Servem o site e a API em produção.
 
 ## 🚀 Como Executar o Projeto Localmente
 
 Siga as instruções abaixo para rodar o projeto na sua máquina.
 
 ### Pré-requisitos
-- Python 3.10+
-- Node.js 18+
+- Python 3.12+
+- Node.js 20.19+
 
 ### 1. Configurando o Backend (Django)
 
@@ -48,6 +49,9 @@ python -m venv venv
 
 # Instale as dependências
 pip install -r requirements.txt
+
+# Crie o arquivo de configuração local (liga o modo de desenvolvimento)
+copy .env.example .env
 
 # Execute as migrações do banco de dados
 python manage.py migrate
@@ -71,7 +75,51 @@ npm install
 # Inicie o servidor de desenvolvimento
 npm run dev
 ```
-O frontend estará acessível em `http://localhost:5173`.
+O frontend estará acessível em `http://localhost:5173`. As chamadas para `/api` são repassadas ao Django na porta 8000.
+
+### Testes
+
+```bash
+cd backend
+python manage.py test sorteio
+```
+
+## ☁️ Hospedagem
+
+O projeto sobe como **um único serviço** a partir do `Dockerfile`: o Django entrega a API, o admin e o app React no mesmo endereço. Funciona em qualquer hospedagem que aceite Docker (Render, Railway, Fly.io, Koyeb...).
+
+### Banco de dados
+
+Use um PostgreSQL e informe o endereço dele em `DATABASE_URL`. Opções gratuitas: **Neon** ou **Supabase**. O Postgres gratuito do Render também funciona, mas expira 30 dias depois de criado.
+
+Sem `DATABASE_URL` o servidor de produção não sobe, de propósito: um SQLite dentro do container perderia todos os grupos a cada reinício.
+
+### Passo a passo no Render
+
+1. Crie o banco (ex.: no Neon) e copie o endereço de conexão (`postgresql://...`).
+2. No Render, clique em **New > Blueprint** e escolha este repositório (ele usa o `render.yaml`).
+3. Quando o Render pedir, cole o endereço do banco em `DATABASE_URL`. A `DJANGO_SECRET_KEY` é gerada sozinha.
+4. Terminado o deploy, o site fica em `https://<nome-do-serviço>.onrender.com`.
+5. Para usar um domínio próprio, adicione-o no Render e em `DJANGO_ALLOWED_HOSTS`.
+6. Opcional: para entrar no admin do Django (`/admin/`), rode `python manage.py createsuperuser` com a `DATABASE_URL` de produção (pelo Shell do Render nos planos pagos, ou do seu computador).
+
+### Variáveis de ambiente
+
+| Variável | Obrigatória | Para quê |
+| --- | --- | --- |
+| `DJANGO_SECRET_KEY` | Sim | Chave secreta. Gere uma nova; nunca reutilize a do histórico do repositório. |
+| `DATABASE_URL` | Sim | Endereço do PostgreSQL. |
+| `DJANGO_ALLOWED_HOSTS` | Fora do Render | Domínios do site, separados por vírgula. No Render o endereço `.onrender.com` entra sozinho. |
+| `DJANGO_MEDIA_ROOT` | Não | Pasta das fotos de perfil, num disco persistente. |
+| `CORS_ALLOWED_ORIGINS` | Não | Só se o frontend ficar em outro domínio (veja `frontend/.env.example`). |
+| `DJANGO_DEBUG` | Não | Modo de desenvolvimento. Nunca use `True` em produção. |
+
+O modelo completo, com explicações, está em `backend/.env.example`.
+
+### Bom saber
+
+- **O plano gratuito do Render "dorme"** depois de 15 minutos sem acesso, e o primeiro acesso seguinte leva cerca de um minuto. Para quem abre o link pelo WhatsApp não esperar, o plano pago mais barato resolve.
+- **As fotos de perfil ficam no disco do servidor**, que é apagado a cada deploy nos planos gratuitos. Sem disco persistente (`DJANGO_MEDIA_ROOT`), a foto some e o app volta a mostrar as iniciais.
 
 ## 📸 Telas do Sistema
 

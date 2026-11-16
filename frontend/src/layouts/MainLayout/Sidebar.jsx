@@ -1,20 +1,22 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, UserPlus, Gift, Settings, LogOut } from 'lucide-react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Plus, Gift, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Sidebar.module.css';
+
+// shortLabel aparece na barra inferior do celular.
+const menuItems = [
+  { path: '/dashboard', label: 'Dashboard', shortLabel: 'Início', icon: LayoutDashboard },
+  { path: '/grupos/novo', label: 'Criar Grupo', shortLabel: 'Novo grupo', icon: Plus },
+  { path: '/configuracoes', label: 'Configurações', shortLabel: 'Perfil', icon: Settings },
+];
 
 export const Sidebar = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-
-  const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/grupos/novo', label: 'Criar Grupo', icon: Users },
-    { path: '/participantes', label: 'Participantes', icon: UserPlus },
-    { path: '/sorteios', label: 'Sorteios', icon: Gift },
-    { path: '/configuracoes', label: 'Configurações', icon: Settings },
-  ];
+  const { pathname } = useLocation();
+  // A página de um grupo pertence à seção "Dashboard" (é de lá que se chega nela).
+  const isGroupPage = pathname.startsWith('/grupos/') && pathname !== '/grupos/novo';
 
   const handleLogout = () => {
     logout();
@@ -33,7 +35,7 @@ export const Sidebar = () => {
         </div>
       </div>
 
-      <nav className={styles.nav}>
+      <nav className={styles.nav} aria-label="Menu principal">
         {menuItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -41,11 +43,14 @@ export const Sidebar = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                isActive ? `${styles.navItem} ${styles.active}` : styles.navItem
+                isActive || (isGroupPage && item.path === '/dashboard')
+                  ? `${styles.navItem} ${styles.active}`
+                  : styles.navItem
               }
             >
               <Icon size={20} />
-              <span>{item.label}</span>
+              <span className={styles.label}>{item.label}</span>
+              <span className={styles.shortLabel}>{item.shortLabel}</span>
             </NavLink>
           );
         })}

@@ -6,9 +6,12 @@ import { Input } from '../../components/Input/Input';
 import { Button } from '../../components/Button/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { errorMessage } from '../../utils/format';
 import styles from './Register.module.css';
 
 export const Register = () => {
+  useDocumentTitle('Criar conta');
   const navigate = useNavigate();
   const { register } = useAuth();
   const { addToast } = useToast();
@@ -27,8 +30,8 @@ export const Register = () => {
       addToast('Conta criada com sucesso!', 'success');
       navigate('/dashboard');
     } catch (err) {
-      const errorMsg = err.response?.data?.username?.[0] || 'Erro ao criar conta. Verifique os dados.';
-      addToast(errorMsg, 'error');
+      // Ex.: "Já existe uma conta com este e-mail." ou "Esta senha é muito comum."
+      addToast(errorMessage(err, 'Não foi possível criar a conta. Verifique os dados.'), 'error');
       setIsLoading(false);
     }
   };
@@ -67,16 +70,19 @@ export const Register = () => {
               <Input
                 label="Senha"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
+                placeholder="Mínimo de 8 caracteres"
                 icon={Lock}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                minLength={8}
+                autoComplete="new-password"
                 required
               />
               <button
                 type="button"
                 className={styles.togglePassword}
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>

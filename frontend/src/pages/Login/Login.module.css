@@ -74,15 +74,6 @@
   cursor: pointer;
 }
 
-.forgotPassword {
-  color: var(--color-primary);
-  font-weight: 500;
-}
-
-.forgotPassword:hover {
-  text-decoration: underline;
-}
-
 .register {
   text-align: center;
   font-size: 0.875rem;

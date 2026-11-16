@@ -7,7 +7,7 @@
 .leftPanel {
   flex: 1;
   background-color: #064e3b; /* Darker green background for the brand side */
-  color: var(--color-surface);
+  color: var(--color-on-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;

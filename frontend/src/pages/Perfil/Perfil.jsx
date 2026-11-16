@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, User, Mail, Phone, Lock, Bell, Moon } from 'lucide-react';
+import { Camera, User, Mail, Phone, Lock, Moon } from 'lucide-react';
 import { Card, CardContent } from '../../components/Card/Card';
 import { Input } from '../../components/Input/Input';
 import { Button } from '../../components/Button/Button';
@@ -8,17 +8,15 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { updateProfile } from '../../api';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import styles from './Perfil.module.css';
 
 export const Perfil = () => {
+  useDocumentTitle('Configurações');
   const { theme, toggleTheme } = useTheme();
   const { user, updateUser } = useAuth();
   const { addToast } = useToast();
   const fileInputRef = useRef(null);
-
-  const [notificationsEnabled, setNotificationsEnabled] = useState(
-    localStorage.getItem('notifications') !== 'false'
-  );
 
   const [name, setName] = useState(user?.name || '');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -36,13 +34,6 @@ export const Perfil = () => {
       setAvatarFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
-  };
-
-  const toggleNotifications = () => {
-    const newState = !notificationsEnabled;
-    setNotificationsEnabled(newState);
-    localStorage.setItem('notifications', newState);
-    addToast(`Notificações ${newState ? 'ativadas' : 'desativadas'}.`, 'info');
   };
 
   const handleSave = async (e) => {
@@ -117,24 +108,11 @@ export const Perfil = () => {
                 <span>Modo Escuro</span>
               </div>
               <label className={styles.switch}>
-                <input 
-                  type="checkbox" 
-                  checked={theme === 'dark'} 
+                <input
+                  type="checkbox"
+                  aria-label="Modo escuro"
+                  checked={theme === 'dark'}
                   onChange={toggleTheme} 
-                />
-                <span className={styles.slider}></span>
-              </label>
-            </div>
-            <div className={styles.preferenceItem}>
-              <div className={styles.prefInfo}>
-                <Bell size={18} className={styles.prefIcon} />
-                <span>Notificações</span>
-              </div>
-              <label className={styles.switch}>
-                <input 
-                  type="checkbox" 
-                  checked={notificationsEnabled} 
-                  onChange={toggleNotifications}
                 />
                 <span className={styles.slider}></span>
               </label>

@@ -19,8 +19,13 @@ urlpatterns = [
     ),
     path(
         "groups/<uuid:admin_token>/participants/<uuid:participant_id>/",
-        views.ParticipantDeleteView.as_view(),
-        name="participant-delete",
+        views.ParticipantDetailView.as_view(),
+        name="participant-detail",
+    ),
+    path(
+        "groups/<uuid:admin_token>/participants/<uuid:participant_id>/sent/",
+        views.ParticipantLinkSentView.as_view(),
+        name="participant-link-sent",
     ),
     path(
         "groups/<uuid:admin_token>/draw/",

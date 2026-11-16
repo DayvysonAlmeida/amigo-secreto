@@ -6,9 +6,11 @@ import { Input } from '../../components/Input/Input';
 import { Button } from '../../components/Button/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import styles from './Login.module.css';
 
 export const Login = () => {
+  useDocumentTitle('Entrar');
   const navigate = useNavigate();
   const { login } = useAuth();
   const { addToast } = useToast();
@@ -65,13 +67,10 @@ export const Login = () => {
                 type="button"
                 className={styles.togglePassword}
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
-            </div>
-
-            <div className={styles.forgotPassword}>
-              <Link to="/forgot-password">Esqueceu a senha?</Link>
             </div>
 
             <Button type="submit" fullWidth isLoading={isLoading} size="lg" className={styles.submitBtn}>

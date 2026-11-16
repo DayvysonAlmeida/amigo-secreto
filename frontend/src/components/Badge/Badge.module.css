@@ -31,5 +31,5 @@
 
 .primary {
   background-color: var(--color-primary-light);
-  color: var(--color-primary-hover);
+  color: var(--color-primary-text);
 }

@@ -40,7 +40,7 @@
   bottom: 0;
   right: 0;
   background-color: var(--color-primary);
-  color: var(--color-surface);
+  color: var(--color-on-primary);
   width: 32px;
   height: 32px;
   border-radius: var(--radius-full);
