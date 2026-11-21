@@ -1,0 +1,27 @@
+# Deploy automático: a cada push no main, o Cloud Build monta a imagem do Dockerfile e publica no Cloud Run.
+# Só a imagem muda: as variáveis, o bucket das fotos e os limites continuam os que estão no serviço.
+# O gatilho que roda este arquivo é configurado no Google Cloud (veja "Deploy automático" no README).
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_IMAGE}:${SHORT_SHA}", "."]
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: ["push", "${_IMAGE}:${SHORT_SHA}"]
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args: ["run", "deploy", "${_SERVICE}", "--image", "${_IMAGE}:${SHORT_SHA}", "--region", "${_REGION}", "--quiet"]
+
+substitutions:
+  _SERVICE: amigo-secreto
+  _REGION: us-east4
+  _IMAGE: us-east4-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/amigo-secreto
+
+options:
+  dynamicSubstitutions: true
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1200s

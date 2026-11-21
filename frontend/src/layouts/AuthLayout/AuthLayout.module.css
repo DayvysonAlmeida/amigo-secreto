@@ -114,6 +114,11 @@
   font-weight: 600;
 }
 
+/* Rodapé: no celular fica no fim da página; no computador, no pé da coluna verde. */
+.credit {
+  margin-top: var(--spacing-8);
+}
+
 /* Computador: duas colunas, formulário à direita. */
 @media (min-width: 900px) {
   .container {
@@ -147,5 +152,9 @@
 
   .headline {
     font-size: 2rem;
+  }
+
+  .credit {
+    text-align: left;
   }
 }

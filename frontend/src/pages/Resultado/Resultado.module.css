@@ -41,6 +41,10 @@
   animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.credit {
+  margin-top: var(--spacing-4);
+}
+
 .btnContent {
   display: inline-flex;
   align-items: center;

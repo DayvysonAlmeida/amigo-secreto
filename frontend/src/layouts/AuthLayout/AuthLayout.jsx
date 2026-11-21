@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Check, Gift, MessageCircle, Shuffle, Users } from 'lucide-react';
 import { PageLoader } from '../../components/PageLoader/PageLoader';
+import { Credit } from '../../components/Credit/Credit';
 import styles from './AuthLayout.module.css';
 
 const STEPS = [
@@ -47,6 +48,7 @@ export const AuthLayout = () => (
           <Check size={16} /> Quem participa não precisa criar conta nem baixar nada.
         </p>
       </div>
+      <Credit onDark className={styles.credit} />
     </aside>
   </div>
 );

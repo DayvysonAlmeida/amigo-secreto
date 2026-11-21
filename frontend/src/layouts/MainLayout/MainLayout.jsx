@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
 import { PageLoader } from '../../components/PageLoader/PageLoader';
+import { Credit } from '../../components/Credit/Credit';
 import styles from './MainLayout.module.css';
 
 export const MainLayout = () => {
@@ -37,6 +38,9 @@ export const MainLayout = () => {
             <Outlet />
           </Suspense>
         </main>
+        <footer className={styles.footer}>
+          <Credit />
+        </footer>
       </div>
     </div>
   );

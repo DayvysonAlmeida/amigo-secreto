@@ -1,0 +1,15 @@
+/* Pequena e em tom claro: está lá para quem procurar, sem disputar atenção com o app. */
+.credit {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-light);
+  text-align: center;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.onDark {
+  color: rgb(255 255 255 / 0.5);
+}

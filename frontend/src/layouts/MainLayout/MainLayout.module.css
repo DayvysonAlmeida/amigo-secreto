@@ -21,6 +21,10 @@
   min-width: 0;
 }
 
+.footer {
+  padding: 0 var(--spacing-8) var(--spacing-6);
+}
+
 @media (max-width: 768px) {
   .mainWrapper {
     margin-left: 0;
@@ -28,6 +32,10 @@
 
   .content {
     padding: var(--spacing-4);
-    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--spacing-6));
+  }
+
+  /* O rodapé é o último item da página: o espaço da barra de navegação do celular fica nele. */
+  .footer {
+    padding: var(--spacing-2) var(--spacing-4) calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--spacing-4));
   }
 }

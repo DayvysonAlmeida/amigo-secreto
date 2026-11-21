@@ -21,11 +21,20 @@ const request = async (method, path, body) => {
   const isForm = body instanceof FormData; // o navegador define o Content-Type do upload
   if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
 
-  const response = await fetch(BASE_URL + path, {
-    method,
-    headers,
-    body: body === undefined || isForm ? body : JSON.stringify(body),
-  });
+  let response;
+  try {
+    response = await fetch(BASE_URL + path, {
+      method,
+      headers,
+      body: body === undefined || isForm ? body : JSON.stringify(body),
+    });
+  } catch {
+    // O pedido nem chegou ao servidor (sem internet, rede instável...). Status 0 = sem resposta.
+    throw new ApiError({
+      status: 0,
+      data: { detail: 'Sem conexão com o servidor. Verifique a sua internet e tente de novo.' },
+    });
+  }
 
   const text = await response.text();
   let data = null;

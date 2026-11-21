@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../components/Button/Button';
 import { Avatar } from '../../components/Avatar/Avatar';
+import { Credit } from '../../components/Credit/Credit';
 import { getRevealInfo, revealParticipant, updateMyWishlist } from '../../api';
 import { useToast } from '../../context/ToastContext';
 import { errorMessage, formatBudget, formatEventDate, initials, mapsUrl } from '../../utils/format';
@@ -316,6 +317,8 @@ export const Resultado = () => {
             />
           </>
         )}
+
+        <Credit className={styles.credit} />
       </div>
     </main>
   );

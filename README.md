@@ -88,22 +88,90 @@ python manage.py test sorteio
 
 ## ☁️ Hospedagem
 
-O projeto sobe como **um único serviço** a partir do `Dockerfile`: o Django entrega a API, o admin e o app React no mesmo endereço. Funciona em qualquer hospedagem que aceite Docker (Render, Railway, Fly.io, Koyeb...).
+O projeto sobe como **um único serviço** a partir do `Dockerfile`: o Django entrega a API, o admin e o app React no mesmo endereço. Funciona em qualquer hospedagem que aceite Docker.
 
-### Banco de dados
+A versão no ar usa o **Google Cloud Run** (site) e o **Neon** (banco PostgreSQL), dentro das cotas gratuitas dos dois.
 
-Use um PostgreSQL e informe o endereço dele em `DATABASE_URL`. Opções gratuitas: **Neon** ou **Supabase**. O Postgres gratuito do Render também funciona, mas expira 30 dias depois de criado.
+### Banco de dados (Neon)
+
+1. Crie um projeto no [Neon](https://neon.tech) na região **AWS US East 1 (N. Virginia)**, a mais próxima do Cloud Run em `us-east4`. Cada página consulta o banco várias vezes, então os dois precisam ficar perto.
+2. Em **Connect**, desligue *Connection pooling* e copie o endereço (`postgresql://...`). Ele vai na variável `DATABASE_URL`.
 
 Sem `DATABASE_URL` o servidor de produção não sobe, de propósito: um SQLite dentro do container perderia todos os grupos a cada reinício.
 
-### Passo a passo no Render
+### Primeiro deploy no Cloud Run
 
-1. Crie o banco (ex.: no Neon) e copie o endereço de conexão (`postgresql://...`).
-2. No Render, clique em **New > Blueprint** e escolha este repositório (ele usa o `render.yaml`).
-3. Quando o Render pedir, cole o endereço do banco em `DATABASE_URL`. A `DJANGO_SECRET_KEY` é gerada sozinha.
-4. Terminado o deploy, o site fica em `https://<nome-do-serviço>.onrender.com`.
-5. Para usar um domínio próprio, adicione-o no Render e em `DJANGO_ALLOWED_HOSTS`.
-6. Opcional: para entrar no admin do Django (`/admin/`), rode `python manage.py createsuperuser` com a `DATABASE_URL` de produção (pelo Shell do Render nos planos pagos, ou do seu computador).
+Precisa do [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) logado e de um projeto do Google Cloud com faturamento vinculado. Os comandos são do PowerShell:
+
+```powershell
+$PROJETO = "id-do-projeto"
+$REGIAO  = "us-east4"
+gcloud config set project $PROJETO
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com storage.googleapis.com compute.googleapis.com
+
+# Bucket das fotos de perfil. Fica privado: quem entrega as fotos é o Django.
+$BUCKET = "$PROJETO-fotos"
+$NUMERO = gcloud projects describe $PROJETO --format="value(projectNumber)"
+$SITE   = "serviceAccount:$NUMERO-compute@developer.gserviceaccount.com"
+gcloud storage buckets create "gs://$BUCKET" --location $REGIAO --uniform-bucket-level-access --public-access-prevention
+gcloud storage buckets add-iam-policy-binding "gs://$BUCKET" --member $SITE --role roles/storage.objectAdmin
+gcloud projects add-iam-policy-binding $PROJETO --member $SITE --role roles/run.builder
+```
+
+Crie o arquivo de variáveis **fora do repositório**, por exemplo em `..\cloudrun-env.yaml`. Ele tem a senha do banco e nunca deve ir para o git:
+
+```yaml
+# Gere a chave com: python -c "import secrets; print(secrets.token_urlsafe(50))"
+DJANGO_SECRET_KEY: "..."
+DATABASE_URL: "postgresql://..."
+DJANGO_ALLOWED_HOSTS: ".run.app"
+DJANGO_MEDIA_ROOT: "/mnt/media"
+```
+
+E faça o deploy:
+
+```powershell
+gcloud run deploy amigo-secreto `
+  --source . `
+  --region $REGIAO `
+  --no-invoker-iam-check `
+  --env-vars-file ..\cloudrun-env.yaml `
+  --execution-environment gen2 `
+  --add-volume "name=fotos,type=cloud-storage,bucket=$BUCKET" `
+  --add-volume-mount "volume=fotos,mount-path=/mnt/media" `
+  --min-instances 0 `
+  --max-instances 2
+```
+
+- `--no-invoker-iam-check` deixa o site aberto ao público, mesmo em organizações do Google Cloud que bloqueiam o acesso público pelo jeito tradicional (`allUsers`).
+- Ao subir, o container aplica as migrações sozinho.
+- Para entrar no admin (`/admin/`), rode `python manage.py createsuperuser` no seu computador com a `DATABASE_URL` de produção.
+
+### Deploy automático (push no `main`)
+
+O `cloudbuild.yaml` monta a imagem e publica uma versão nova no Cloud Run. Só a imagem muda: as variáveis, o bucket e os limites continuam os do serviço. Um gatilho do Cloud Build roda esse arquivo a cada push no `main`.
+
+1. Crie a conta de serviço do deploy. Ela é separada da conta do site, para o site não ter permissão de se republicar:
+   ```powershell
+   $DEPLOY = "cloudbuild-deploy@$PROJETO.iam.gserviceaccount.com"
+   gcloud iam service-accounts create cloudbuild-deploy
+   gcloud projects add-iam-policy-binding $PROJETO --member "serviceAccount:$DEPLOY" --role roles/run.builder
+   gcloud projects add-iam-policy-binding $PROJETO --member "serviceAccount:$DEPLOY" --role roles/run.developer
+   gcloud iam service-accounts add-iam-policy-binding "$NUMERO-compute@developer.gserviceaccount.com" --member "serviceAccount:$DEPLOY" --role roles/iam.serviceAccountUser
+   ```
+2. No console, em **Cloud Build > Gatilhos > Conectar repositório**, conecte o GitHub e escolha este repositório.
+3. Crie o gatilho: evento **push em uma ramificação** (`^main$`), configuração **arquivo do Cloud Build** (`cloudbuild.yaml`) e a conta de serviço `cloudbuild-deploy`.
+
+Depois disso, publicar é só fazer `git push` no `main`. O andamento aparece em **Cloud Build > Histórico**. Também dá para publicar a partir da pasta local com `gcloud run deploy amigo-secreto --source . --region us-east4`.
+
+### Custos
+
+Para o uso de um amigo secreto, tudo fica dentro das cotas gratuitas. As proteções configuradas:
+
+- **Cloud Run:** desliga quando ninguém usa (`--min-instances 0`) e não passa de 2 instâncias (`--max-instances 2`).
+- **Artifact Registry:** uma política de limpeza guarda só as 3 imagens mais recentes.
+- **Bucket `run-sources-...`:** as cópias do código enviadas pelo `--source` são apagadas depois de 7 dias.
+- **Alerta de orçamento** (Faturamento > Orçamentos e alertas): avisa por e-mail se o gasto do projeto passar de R$ 10 no mês.
 
 ### Variáveis de ambiente
 
@@ -111,17 +179,16 @@ Sem `DATABASE_URL` o servidor de produção não sobe, de propósito: um SQLite 
 | --- | --- | --- |
 | `DJANGO_SECRET_KEY` | Sim | Chave secreta. Gere uma nova; nunca reutilize a do histórico do repositório. |
 | `DATABASE_URL` | Sim | Endereço do PostgreSQL. |
-| `DJANGO_ALLOWED_HOSTS` | Fora do Render | Domínios do site, separados por vírgula. No Render o endereço `.onrender.com` entra sozinho. |
-| `DJANGO_MEDIA_ROOT` | Não | Pasta das fotos de perfil, num disco persistente. |
+| `DJANGO_ALLOWED_HOSTS` | Sim (menos no Render) | Domínios do site, separados por vírgula. No Cloud Run, `.run.app`; com domínio próprio, acrescente-o. No Render o endereço `.onrender.com` entra sozinho. |
+| `DJANGO_MEDIA_ROOT` | Não | Pasta das fotos de perfil num disco persistente. No Cloud Run, a pasta onde o bucket é montado. |
 | `CORS_ALLOWED_ORIGINS` | Não | Só se o frontend ficar em outro domínio (veja `frontend/.env.example`). |
 | `DJANGO_DEBUG` | Não | Modo de desenvolvimento. Nunca use `True` em produção. |
 
 O modelo completo, com explicações, está em `backend/.env.example`.
 
-### Bom saber
+### Outras hospedagens
 
-- **O plano gratuito do Render "dorme"** depois de 15 minutos sem acesso, e o primeiro acesso seguinte leva cerca de um minuto. Para quem abre o link pelo WhatsApp não esperar, o plano pago mais barato resolve.
-- **As fotos de perfil ficam no disco do servidor**, que é apagado a cada deploy nos planos gratuitos. Sem disco persistente (`DJANGO_MEDIA_ROOT`), a foto some e o app volta a mostrar as iniciais.
+O `render.yaml` sobe o mesmo `Dockerfile` no Render (**New > Blueprint**). Lá a `DJANGO_SECRET_KEY` é gerada sozinha e o endereço `.onrender.com` entra sozinho nos domínios permitidos. No plano gratuito, o serviço "dorme" depois de 15 minutos sem acesso (o próximo acesso leva cerca de um minuto) e as fotos de perfil somem a cada deploy, porque não há disco persistente.
 
 ## 📸 Telas do Sistema
 
