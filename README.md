@@ -10,14 +10,16 @@ Um aplicativo web moderno e completo para organização de sorteios de Amigo Sec
 - **🎲 Sorteio Inteligente:** O algoritmo garante que o sorteio ocorra sem erros (ninguém tira a si mesmo).
 - **🔗 Compartilhamento Fácil:** O link de revelação pode ser enviado com 1 clique diretamente pelo WhatsApp ou copiado para a área de transferência. O resultado é privado e o participante acessa sem precisar criar conta.
 - **🖼️ Perfil do Usuário:** Personalização de foto de perfil (Avatar), telefone e gerenciamento de segurança (alteração de senhas).
-- **🌓 Dark Mode:** Suporte nativo e fluido para Tema Escuro.
+- **🌓 Dark Mode:** Segue o tema do aparelho, com opção de trocar no Perfil.
+- **📱 Instalável:** Pode ser adicionado à tela inicial do celular e abre como um app.
 
 ## 💻 Tecnologias Utilizadas
 
 ### Frontend
 - **React (Vite):** Framework principal e empacotador super rápido.
 - **CSS Modules:** Estilização componentizada (Vanilla CSS com tokens).
-- **Axios:** Cliente HTTP para comunicação com a API.
+- **fetch nativo:** Comunicação com a API sem biblioteca extra (`src/api.js`).
+- **Inter (Fontsource):** Fonte servida pelo próprio app, sem depender do Google Fonts.
 - **Lucide React:** Biblioteca de ícones modernos e leves.
 - **React Router Dom:** Gerenciamento das rotas e rotas privadas.
 

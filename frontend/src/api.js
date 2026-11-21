@@ -1,36 +1,60 @@
-import axios from 'axios';
+// Cliente da API com o fetch nativo do navegador (sem biblioteca extra para baixar).
+// Mantém o formato que o app usa: `res.data` no sucesso e `err.response.{status, data}` no erro.
 
 // Por padrão a API fica no mesmo endereço do site (/api): em produção o Django entrega os dois,
 // e no `npm run dev` o Vite repassa /api para o Django (vite.config.js).
 // Só defina VITE_API_URL se a API ficar em outro domínio (ex.: https://api.seu-dominio.com.br/api).
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-});
+const BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
-// Request interceptor to add token if exists
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+export class ApiError extends Error {
+  constructor(response) {
+    super(`A API respondeu com o status ${response.status}`);
+    this.response = response;
+  }
+}
+
+const request = async (method, path, body) => {
+  const headers = { Accept: 'application/json' };
+  const token = localStorage.getItem('token');
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const isForm = body instanceof FormData; // o navegador define o Content-Type do upload
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
+
+  const response = await fetch(BASE_URL + path, {
+    method,
+    headers,
+    body: body === undefined || isForm ? body : JSON.stringify(body),
+  });
+
+  const text = await response.text();
+  let data = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  }
 
-// Response interceptor to handle token expiry
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Token expired or invalid
+  if (!response.ok) {
+    if (response.status === 401) {
+      // Login vencido ou inválido: o AuthContext desconecta a pessoa.
       localStorage.removeItem('token');
       window.dispatchEvent(new Event('auth:unauthorized'));
     }
-    return Promise.reject(error);
+    throw new ApiError({ status: response.status, data });
   }
-);
+  return { status: response.status, data };
+};
+
+const api = {
+  get: (path) => request('GET', path),
+  post: (path, body) => request('POST', path, body),
+  put: (path, body) => request('PUT', path, body),
+  patch: (path, body) => request('PATCH', path, body),
+  delete: (path) => request('DELETE', path),
+};
 
 export default api;
 

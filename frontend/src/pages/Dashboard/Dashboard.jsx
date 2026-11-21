@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { AlertCircle, Eye, Gift, PartyPopper, Plus, RefreshCw, Send, Shuffle, UserPlus, Users } from 'lucide-react';
+import {
+  AlertCircle, CalendarDays, Eye, Gift, MessageCircle, PartyPopper, Plus, RefreshCw, Send, Shuffle, UserPlus, Users,
+} from 'lucide-react';
 import { Card, CardContent } from '../../components/Card/Card';
 import { Button } from '../../components/Button/Button';
 import { Badge } from '../../components/Badge/Badge';
+import { PageLoader } from '../../components/PageLoader/PageLoader';
 import { getGroups } from '../../api';
 import { formatEventDate } from '../../utils/format';
 import { groupNextStep } from '../../utils/group';
@@ -18,6 +21,12 @@ const STEP_ICONS = {
   wait: Eye,
   done: PartyPopper,
 };
+
+const HOW_IT_WORKS = [
+  { Icon: Users, text: 'Monte o grupo e adicione quem vai participar' },
+  { Icon: Shuffle, text: 'Sorteie com um toque (ninguém tira a si mesmo)' },
+  { Icon: MessageCircle, text: 'Envie o link secreto de cada pessoa pelo WhatsApp' },
+];
 
 const NextStep = ({ step }) => {
   const Icon = STEP_ICONS[step.key];
@@ -46,8 +55,59 @@ const NextStep = ({ step }) => {
   );
 };
 
+const GroupCard = ({ group, onOpen }) => {
+  const total = group.participants.length;
+  const step = groupNextStep(group);
+  const when = group.event_date ? formatEventDate(group.event_date, group.event_time, { short: true }) : null;
+
+  return (
+    <Card className={styles.groupCard}>
+      <CardContent className={styles.groupContent}>
+        <div className={styles.groupTop}>
+          <h3 className={styles.groupName}>{group.name}</h3>
+          <Badge variant={group.is_drawn ? 'success' : 'warning'} className={styles.status}>
+            {group.is_drawn ? 'Sorteado' : 'A sortear'}
+          </Badge>
+        </div>
+        <p className={styles.groupMeta}>
+          <span><Users size={14} /> {total} {total === 1 ? 'participante' : 'participantes'}</span>
+          {when && <span><CalendarDays size={14} /> {when}</span>}
+        </p>
+
+        <NextStep step={step} />
+
+        <Button
+          variant={step.primary ? 'primary' : 'outline'}
+          fullWidth
+          onClick={onOpen}
+          aria-label={`${step.action}: ${group.name}`}
+        >
+          {step.action}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
+const EmptyState = ({ onCreate }) => (
+  <Card className={styles.empty}>
+    <CardContent className={styles.emptyContent}>
+      <span className={styles.emptyIcon}><Gift size={32} /></span>
+      <h2 className={styles.emptyTitle}>Crie o seu primeiro amigo secreto</h2>
+      <ol className={styles.howItWorks}>
+        {HOW_IT_WORKS.map(({ Icon, text }) => (
+          <li key={text}><span className={styles.howIcon}><Icon size={16} /></span>{text}</li>
+        ))}
+      </ol>
+      <Button size="lg" onClick={onCreate}>
+        <span className={styles.btnContent}><Plus size={18} /> Criar grupo</span>
+      </Button>
+    </CardContent>
+  </Card>
+);
+
 export const Dashboard = () => {
-  useDocumentTitle('Dashboard');
+  useDocumentTitle('Meus grupos');
   const navigate = useNavigate();
   const [grupos, setGrupos] = useState([]);
   const [status, setStatus] = useState('loading'); // loading | ready | failed
@@ -66,18 +126,9 @@ export const Dashboard = () => {
     loadGroups();
   }, [loadGroups]);
 
-  const totalParticipantes = grupos.reduce((acc, g) => acc + g.participants.length, 0);
-  const sorteiosRealizados = grupos.filter(g => g.is_drawn).length;
+  const createGroup = () => navigate('/grupos/novo');
 
-  const stats = [
-    { label: 'Grupos Criados', value: grupos.length.toString(), icon: Users, color: '#3b82f6', bgColor: '#dbeafe' },
-    { label: 'Sorteios Realizados', value: sorteiosRealizados.toString(), icon: Gift, color: '#ec4899', bgColor: '#fce7f3' },
-    { label: 'Participantes', value: totalParticipantes.toString(), icon: Users, color: '#8b5cf6', bgColor: '#ede9fe' },
-  ];
-
-  if (status === 'loading') {
-    return <div style={{ padding: '2rem' }}>Carregando seus grupos...</div>;
-  }
+  if (status === 'loading') return <PageLoader fullScreen={false} />;
 
   if (status === 'failed') {
     return (
@@ -87,98 +138,34 @@ export const Dashboard = () => {
           <p className={styles.errorTitle}>Não foi possível carregar os seus grupos</p>
           <p className={styles.errorText}>Verifique a sua internet e tente de novo.</p>
           <Button onClick={loadGroups}>
-            <RefreshCw size={16} style={{ marginRight: '8px' }} />
-            Tentar de novo
+            <span className={styles.btnContent}><RefreshCw size={16} /> Tentar de novo</span>
           </Button>
         </CardContent>
       </Card>
     );
   }
 
+  if (grupos.length === 0) return <EmptyState onCreate={createGroup} />;
+
   return (
     <div className={styles.dashboard}>
-      <div className={styles.statsGrid}>
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className={styles.statCard}>
-              <CardContent className={styles.statContent}>
-                <div
-                  className={styles.statIconWrapper}
-                  style={{ backgroundColor: stat.bgColor, color: stat.color }}
-                >
-                  <Icon size={24} />
-                </div>
-                <div className={styles.statInfo}>
-                  <p className={styles.statLabel}>{stat.label}</p>
-                  <h3 className={styles.statValue}>{stat.value}</h3>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <div className={styles.sectionHeader}>
-        <h2 className={styles.sectionTitle}>Meus Grupos</h2>
-        <Button onClick={() => navigate('/grupos/novo')}>
-          <Plus size={18} style={{ marginRight: '8px' }} />
-          Criar grupo
+      <div className={styles.toolbar}>
+        <p className={styles.count}>
+          {grupos.length} {grupos.length === 1 ? 'grupo' : 'grupos'}
+        </p>
+        <Button onClick={createGroup}>
+          <span className={styles.btnContent}><Plus size={18} /> Criar grupo</span>
         </Button>
       </div>
 
       <div className={styles.groupsGrid}>
-        {grupos.map((grupo) => {
-          const iconColor = grupo.is_drawn ? '#8b5cf6' : '#10b981';
-          const status = grupo.is_drawn ? 'Sorteado' : 'Aguardando sorteio';
-          const statusVariant = grupo.is_drawn ? 'success' : 'warning';
-          const dateStr = new Date(grupo.created_at).toLocaleDateString('pt-BR');
-          const total = grupo.participants.length;
-          const groupUrl = `/grupos/${grupo.admin_token}`;
-          const step = groupNextStep(grupo);
+        {grupos.map((grupo) => (
+          <GroupCard key={grupo.id} group={grupo} onOpen={() => navigate(`/grupos/${grupo.admin_token}`)} />
+        ))}
 
-          return (
-            <Card key={grupo.id} className={styles.groupCard}>
-              <CardContent className={styles.groupContent}>
-                <div className={styles.groupHeader}>
-                  <Badge variant={statusVariant}>{status}</Badge>
-                </div>
-
-                <div className={styles.groupMainInfo}>
-                  <div className={styles.groupIconWrapper} style={{ color: iconColor }}>
-                    <Users size={48} strokeWidth={1.5} />
-                  </div>
-                  <h3 className={styles.groupName}>{grupo.name}</h3>
-                  <p className={styles.groupParticipants}>{total} {total === 1 ? 'participante' : 'participantes'}</p>
-                  <p className={styles.groupDate}>
-                    {grupo.event_date
-                      ? `Festa: ${formatEventDate(grupo.event_date, grupo.event_time, { short: true })}`
-                      : `Criado em ${dateStr}`}
-                  </p>
-                </div>
-
-                <NextStep step={step} />
-
-                <div className={styles.groupFooter}>
-                  <Button
-                    variant={step.primary ? 'primary' : 'outline'}
-                    fullWidth
-                    onClick={() => navigate(groupUrl)}
-                    aria-label={`${step.action}: ${grupo.name}`}
-                  >
-                    {step.action}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        <button className={styles.createGroupCard} onClick={() => navigate('/grupos/novo')}>
-          <div className={styles.createGroupContent}>
-            <Plus size={32} className={styles.createGroupIcon} />
-            <span>Criar novo grupo</span>
-          </div>
+        <button type="button" className={styles.createGroupCard} onClick={createGroup}>
+          <Plus size={24} />
+          <span>Criar outro grupo</span>
         </button>
       </div>
     </div>

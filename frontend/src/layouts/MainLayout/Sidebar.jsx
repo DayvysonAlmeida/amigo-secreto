@@ -6,8 +6,8 @@ import styles from './Sidebar.module.css';
 
 // shortLabel aparece na barra inferior do celular.
 const menuItems = [
-  { path: '/dashboard', label: 'Dashboard', shortLabel: 'Início', icon: LayoutDashboard },
-  { path: '/grupos/novo', label: 'Criar Grupo', shortLabel: 'Novo grupo', icon: Plus },
+  { path: '/dashboard', label: 'Meus grupos', shortLabel: 'Grupos', icon: LayoutDashboard },
+  { path: '/grupos/novo', label: 'Criar grupo', shortLabel: 'Novo grupo', icon: Plus },
   { path: '/configuracoes', label: 'Configurações', shortLabel: 'Perfil', icon: Settings },
 ];
 
@@ -15,7 +15,7 @@ export const Sidebar = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // A página de um grupo pertence à seção "Dashboard" (é de lá que se chega nela).
+  // A página de um grupo pertence à seção "Meus grupos" (é de lá que se chega nela).
   const isGroupPage = pathname.startsWith('/grupos/') && pathname !== '/grupos/novo';
 
   const handleLogout = () => {

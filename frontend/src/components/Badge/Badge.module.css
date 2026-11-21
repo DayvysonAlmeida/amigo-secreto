@@ -33,3 +33,19 @@
   background-color: var(--color-primary-light);
   color: var(--color-primary-text);
 }
+
+/* Tema escuro: fundo translúcido e texto claro (as cores claras acima ofuscam no fundo escuro). */
+:global([data-theme='dark']) .success {
+  background-color: rgb(16 185 129 / 0.16);
+  color: #6ee7b7;
+}
+
+:global([data-theme='dark']) .warning {
+  background-color: rgb(245 158 11 / 0.16);
+  color: #fcd34d;
+}
+
+:global([data-theme='dark']) .danger {
+  background-color: rgb(239 68 68 / 0.16);
+  color: #fca5a5;
+}

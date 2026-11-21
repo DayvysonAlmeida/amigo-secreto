@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
+import { PageLoader } from '../../components/PageLoader/PageLoader';
 import styles from './MainLayout.module.css';
 
 export const MainLayout = () => {
@@ -10,7 +11,7 @@ export const MainLayout = () => {
   const getPageInfo = () => {
     const { pathname } = location;
     if (pathname === '/dashboard') {
-      return { title: 'Dashboard', subtitle: 'Bem-vindo! Aqui está um resumo dos seus grupos.' };
+      return { title: 'Meus grupos', subtitle: 'Acompanhe o próximo passo de cada amigo secreto.' };
     }
     if (pathname === '/grupos/novo') {
       return { title: 'Criar grupo', subtitle: 'Dê um nome ao grupo e, se quiser, a data e o local da festa.' };
@@ -32,7 +33,9 @@ export const MainLayout = () => {
       <div className={styles.mainWrapper}>
         <Navbar title={title} subtitle={subtitle} />
         <main className={styles.content}>
-          <Outlet />
+          <Suspense fallback={<PageLoader fullScreen={false} />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

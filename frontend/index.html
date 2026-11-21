@@ -8,9 +8,18 @@
     <meta name="theme-color" content="#15803d" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Permite instalar o site na tela inicial do celular, abrindo como um app. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      // Aplica o tema antes do app carregar (evita a tela piscar clara no modo escuro).
+      try {
+        var tema = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', tema);
+      } catch (e) {}
+    </script>
 
-    <!-- Prévia do link no WhatsApp e nas redes sociais.
-         A imagem e o endereço entram no build quando VITE_SITE_URL está definido (veja vite.config.js). -->
+    <!-- Prévia do link no WhatsApp e nas redes sociais. A imagem (og:image) precisa do endereço
+         completo do site: o Django a acrescenta ao entregar a página (veja vite.config.js). -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Amigo Secreto" />
     <meta property="og:locale" content="pt_BR" />

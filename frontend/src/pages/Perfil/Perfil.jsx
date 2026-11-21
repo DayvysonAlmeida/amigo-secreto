@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Camera, User, Mail, Phone, Lock, Moon } from 'lucide-react';
+import { Camera, User, Mail, Phone, Moon } from 'lucide-react';
 import { Card, CardContent } from '../../components/Card/Card';
 import { Input } from '../../components/Input/Input';
+import { PasswordInput } from '../../components/Input/PasswordInput';
 import { Button } from '../../components/Button/Button';
 import { Avatar } from '../../components/Avatar/Avatar';
 import { useTheme } from '../../context/ThemeContext';
@@ -105,7 +106,7 @@ export const Perfil = () => {
             <div className={styles.preferenceItem}>
               <div className={styles.prefInfo}>
                 <Moon size={18} className={styles.prefIcon} />
-                <span>Modo Escuro</span>
+                <span>Modo escuro</span>
               </div>
               <label className={styles.switch}>
                 <input
@@ -125,7 +126,7 @@ export const Perfil = () => {
         <Card>
           <CardContent>
             <form className={styles.form} onSubmit={handleSave}>
-              <h3 className={styles.formTitle}>Informações Pessoais</h3>
+              <h3 className={styles.formTitle}>Informações pessoais</h3>
               <div className={styles.formRow}>
                 <Input 
                   label="Nome completo" 
@@ -154,36 +155,33 @@ export const Perfil = () => {
               
               <h3 className={styles.formTitle}>Segurança</h3>
               <div className={styles.formRow}>
-                <Input 
-                  label="Senha Atual" 
-                  type="password" 
-                  icon={Lock} 
-                  placeholder="••••••••" 
+                <PasswordInput
+                  label="Senha atual"
+                  placeholder="Sua senha atual"
+                  autoComplete="current-password" 
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
               </div>
               <div className={styles.formRow}>
-                <Input 
-                  label="Nova Senha" 
-                  type="password" 
-                  icon={Lock} 
-                  placeholder="Nova senha" 
+                <PasswordInput
+                  label="Nova senha"
+                  placeholder="Mínimo de 8 caracteres"
+                  autoComplete="new-password" 
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
-                <Input 
-                  label="Confirmar Nova Senha" 
-                  type="password" 
-                  icon={Lock} 
-                  placeholder="Confirme a senha" 
+                <PasswordInput
+                  label="Confirmar nova senha"
+                  placeholder="Repita a nova senha"
+                  autoComplete="new-password" 
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
 
               <div className={styles.actions}>
-                <Button type="submit" isLoading={isLoading}>Salvar Alterações</Button>
+                <Button type="submit" isLoading={isLoading}>Salvar alterações</Button>
               </div>
             </form>
           </CardContent>

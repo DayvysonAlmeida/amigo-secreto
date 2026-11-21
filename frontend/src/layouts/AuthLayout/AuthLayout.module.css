@@ -1,114 +1,151 @@
+/* Celular primeiro: logo no topo, formulário e, abaixo, como funciona. */
 .container {
-  display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background-color: var(--color-background);
 }
 
-.leftPanel {
-  flex: 1;
-  background-color: #064e3b; /* Darker green background for the brand side */
-  color: var(--color-on-primary);
+.formPanel {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  padding: var(--spacing-10);
-  position: relative;
-  overflow: hidden;
+  gap: var(--spacing-6);
+  padding: var(--spacing-6) var(--spacing-4) var(--spacing-8);
 }
 
-.brand {
-  position: absolute;
-  top: var(--spacing-10);
-  display: flex;
+.logo {
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-4);
-  z-index: 10;
-}
-
-.logoWrapper {
-  background-color: var(--color-primary);
-  padding: var(--spacing-3);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  gap: var(--spacing-3);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 .logoIcon {
-  color: #fbbf24; /* Yellowish highlight like in reference */
-}
-
-.brandName {
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.brandHighlight {
-  color: var(--color-primary);
-  filter: brightness(1.5);
-}
-
-.heroText {
-  text-align: center;
-  max-width: 400px;
-  z-index: 10;
-}
-
-.heroText h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: var(--spacing-4);
-  line-height: 1.2;
-}
-
-.heroText p {
-  font-size: 1.125rem;
-  color: #a7f3d0;
-  font-weight: 400;
-}
-
-.decorations {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.gift1 {
-  position: absolute;
-  bottom: 10%;
-  left: 15%;
-  color: var(--color-primary);
-  opacity: 0.8;
-  transform: rotate(-15deg);
-}
-
-.gift2 {
-  position: absolute;
-  bottom: 5%;
-  right: 15%;
-  color: var(--color-primary);
-  opacity: 0.8;
-  transform: rotate(15deg);
-}
-
-.rightPanel {
-  flex: 1;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-10);
-  background-color: #022c22; /* Very dark background behind the white card to match reference */
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: #fde68a;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .leftPanel {
+.mobileLogo .logo {
+  color: var(--color-text-main);
+}
+
+.desktopLogo {
+  display: none;
+}
+
+/* Sobre o fundo verde, o quadrado do logo precisa de contraste. */
+.desktopLogo .logoIcon {
+  background-color: rgb(255 255 255 / 0.16);
+}
+
+/* Como funciona */
+.brandPanel {
+  padding: var(--spacing-8) var(--spacing-6) var(--spacing-10);
+  background:
+    radial-gradient(circle at 0% 0%, rgb(255 255 255 / 0.1) 0, transparent 45%),
+    linear-gradient(160deg, #15803d 0%, #14532d 100%);
+  color: #fff;
+}
+
+.pitch {
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.headline {
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  margin: var(--spacing-6) 0;
+}
+
+.step {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.stepIcon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background-color: rgb(255 255 255 / 0.14);
+  color: #fde68a;
+}
+
+.stepTitle {
+  font-weight: 700;
+}
+
+.stepText {
+  font-size: 0.9375rem;
+  color: rgb(255 255 255 / 0.82);
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  background-color: rgb(0 0 0 / 0.16);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Computador: duas colunas, formulário à direita. */
+@media (min-width: 900px) {
+  .container {
+    flex-direction: row-reverse;
+  }
+
+  .formPanel {
+    flex: 1;
+    justify-content: center;
+    padding: var(--spacing-10);
+  }
+
+  .mobileLogo {
     display: none;
   }
-  .rightPanel {
-    padding: var(--spacing-6);
+
+  .brandPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-10) var(--spacing-12);
+  }
+
+  .desktopLogo {
+    display: block;
+  }
+
+  .pitch {
+    margin: auto 0;
+  }
+
+  .headline {
+    font-size: 2rem;
   }
 }

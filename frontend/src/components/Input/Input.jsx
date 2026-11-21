@@ -6,6 +6,7 @@ export const Input = forwardRef(({
   label,
   error,
   icon: Icon,
+  endAdornment,
   className,
   fullWidth = true,
   id,
@@ -29,10 +30,12 @@ export const Input = forwardRef(({
           className={clsx(
             styles.input,
             Icon && styles.hasIcon,
+            endAdornment && styles.hasEnd,
             error && styles.hasError
           )}
           {...props}
         />
+        {endAdornment && <div className={styles.endAdornment}>{endAdornment}</div>}
       </div>
       {error && <span className={styles.errorMessage}>{error}</span>}
     </div>

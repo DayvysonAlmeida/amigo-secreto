@@ -1,39 +1,52 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Gift } from 'lucide-react';
+import { Check, Gift, MessageCircle, Shuffle, Users } from 'lucide-react';
+import { PageLoader } from '../../components/PageLoader/PageLoader';
 import styles from './AuthLayout.module.css';
 
-export const AuthLayout = () => {
-  return (
-    <div className={styles.container}>
-      {/* Lado Esquerdo - Ilustração/Logo */}
-      <div className={styles.leftPanel}>
-        <div className={styles.brand}>
-          <div className={styles.logoWrapper}>
-            <Gift className={styles.logoIcon} size={32} />
-          </div>
-          <h1 className={styles.brandName}>
-            Amigo<br />
-            <span className={styles.brandHighlight}>Secreto</span>
-          </h1>
-        </div>
-        
-        <div className={styles.heroText}>
-          <h2>Conecte-se para participar dessa experiência</h2>
-          <p>Organize seu amigo secreto de forma rápida e divertida.</p>
-        </div>
-        
-        <div className={styles.decorations}>
-           {/* Aqui poderiam entrar ilustrações de presentes flutuantes. */}
-           <div className={styles.gift1}><Gift size={48} /></div>
-           <div className={styles.gift2}><Gift size={64} /></div>
-        </div>
-      </div>
+const STEPS = [
+  { Icon: Users, title: 'Monte o grupo', text: 'Dê um nome, a data da festa e adicione quem vai participar.' },
+  { Icon: Shuffle, title: 'Sorteie com um toque', text: 'Ninguém tira a si mesmo, e nem você vê o resultado.' },
+  { Icon: MessageCircle, title: 'Envie pelo WhatsApp', text: 'Cada pessoa recebe um link secreto e escreve a lista de desejos.' },
+];
 
-      {/* Lado Direito - Conteúdo (Formulário) */}
-      <div className={styles.rightPanel}>
+const Logo = () => (
+  <div className={styles.logo}>
+    <span className={styles.logoIcon}><Gift size={22} /></span>
+    Amigo Secreto
+  </div>
+);
+
+export const AuthLayout = () => (
+  <div className={styles.container}>
+    <main className={styles.formPanel}>
+      <div className={styles.mobileLogo}><Logo /></div>
+      <Suspense fallback={<PageLoader fullScreen={false} />}>
         <Outlet />
+      </Suspense>
+    </main>
+
+    <aside className={styles.brandPanel} aria-labelledby="como-funciona">
+      <div className={styles.desktopLogo}><Logo /></div>
+      <div className={styles.pitch}>
+        <h2 id="como-funciona" className={styles.headline}>
+          O amigo secreto da turma organizado em poucos minutos
+        </h2>
+        <ol className={styles.steps}>
+          {STEPS.map(({ Icon, title, text }) => (
+            <li key={title} className={styles.step}>
+              <span className={styles.stepIcon}><Icon size={20} /></span>
+              <div>
+                <p className={styles.stepTitle}>{title}</p>
+                <p className={styles.stepText}>{text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p className={styles.note}>
+          <Check size={16} /> Quem participa não precisa criar conta nem baixar nada.
+        </p>
       </div>
-    </div>
-  );
-};
+    </aside>
+  </div>
+);

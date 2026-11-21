@@ -30,7 +30,8 @@
 }
 
 .secondary:hover:not(:disabled) {
-  background-color: #c6f6d5;
+  /* Um pouco mais forte que o fundo, nos dois temas. */
+  background-color: color-mix(in srgb, var(--color-primary-light) 82%, var(--color-primary));
 }
 
 .outline {
